@@ -1,21 +1,30 @@
 # Projects for FreeCodeCamp
 [https://ivthefourth.github.io/fcc/](https://ivthefourth.github.io/fcc/)
 ## Front End
-- [Tribute Page](https://ivthefourth.github.io/fcc/front-end/tribute-page/)
+- Tribute Page
+  - [live](https://ivthefourth.github.io/fcc/front-end/tribute-page/)
+  - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/tribute-page)
+- Portfolio
+  - [live](https://ivthefourth.github.io/portfolio/)
+  - [code](https://github.com/ivthefourth/portfolio)
+- Random Quote Machine
+  - [live](https://ivthefourth.github.io/fcc/front-end/quote-machine/)
+  - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/quote-machine)
+- Local Weather
+  - [live](http://codepen.io/ivthefourth/pen/rmQRKL)
+  - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/local-weather)
+- Wikipedia Viewer
+  - [live](https://ivthefourth.github.io/fcc/front-end/wiki-viewer/)
+  - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/wiki-viewer)
+- Twitch API
+  - [live]()
   - [code]()
-- [Portfolio](https://ivthefourth.github.io/portfolio/)
+- Calculator
+  - [live](https://ivthefourth.github.io/fcc/front-end/calculator)
+  - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/calculator)
+- Pomodoro Clock
+  - [live]()
   - [code]()
-- [Random Quote Machine](https://ivthefourth.github.io/fcc/front-end/quote-machine/)
-  - [code]()
-- [Local Weather](http://codepen.io/ivthefourth/pen/rmQRKL)
-  - [code]()
-- [Wikipedia Viewer](https://ivthefourth.github.io/fcc/front-end/wiki-viewer/)
-  - [code]()
-- [Twitch API]()
-  - [code]()
-- [Calculator](https://ivthefourth.github.io/fcc/front-end/calculator)
-  - [code]()
-- [Pomodoro Clock]()
-  - [code]()
-- [Tic Tac Toe](https://ivthefourth.github.io/fcc/front-end/tic-tac-toe/)
-  - [code]()
+- Tic Tac Toe
+  - [live](https://ivthefourth.github.io/fcc/front-end/tic-tac-toe/)
+  - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/tic-tac-toe)
