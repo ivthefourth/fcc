@@ -4,7 +4,7 @@
 - [Tribute Page](https://ivthefourth.github.io/fcc/front-end/tribute-page/)
 - [Portfolio](https://ivthefourth.github.io/portfolio/)
 - [Random Quote Machine](https://ivthefourth.github.io/fcc/front-end/quote-machine/)
-- [Local Weather](https://ivthefourth.github.io/fcc/front-end/local-weather/)
+- [Local Weather](http://codepen.io/ivthefourth/pen/rmQRKL)
 - [Wikipedia Viewer](https://ivthefourth.github.io/fcc/front-end/wiki-viewer/)
 - [Twitch API]()
 - [Calculator](https://ivthefourth.github.io/fcc/front-end/calculator)
