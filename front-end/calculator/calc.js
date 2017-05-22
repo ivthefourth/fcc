@@ -517,7 +517,7 @@
         state.displayValue = val;
         //err when value is NaN, 'Error', or very small/large (magnitude 10^[<-100 or >160])
         if (
-            val !== val || val === 'Error' || val > 1e160 || val < -1e160 || 
+            val !== val || val === 'Error' || val >= 1e161 || val <= -1e161 || 
             val < 1e-100 && val > 0 || val > -1e-100 && val <0
             ){
             val = 'Error';
