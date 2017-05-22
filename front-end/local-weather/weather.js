@@ -26,7 +26,7 @@ function makePage(response, errMsg){
 		document.getElementById('weather').innerHTML = 
 			response.weather[0].description;
 		document.getElementById('icon').innerHTML = 
-			'<img src="https://openweathermap.org/img/w/' + response.weather[0].icon + '.png">';
+			'<img src="http://openweathermap.org/img/w/' + response.weather[0].icon + '.png">';
 		
 		var tempToggle = function(){
 			if( units === 'c'){
@@ -53,7 +53,7 @@ function makePage(response, errMsg){
 
 function sendWeatherRequest(ispInfo) {
 	var key = '43af6625c5ef2c20e13fd4fe7d20e7df';
-	var url = 'https://crossorigin.me/http://api.openweathermap.org/data/2.5/weather?q='+
+	var url = 'http://api.openweathermap.org/data/2.5/weather?q='+
 				ispInfo.city + ',' + ispInfo.country + '&appid=' + key;
 	var request = new XMLHttpRequest();
 	request.open('GET', url, true);
@@ -77,7 +77,7 @@ function sendWeatherRequest(ispInfo) {
 
 function getLocationFromIP(callback){
 	var request = new XMLHttpRequest();
-	request.open('GET', 'https://ipinfo.io/json', true);
+	request.open('GET', 'http://ipinfo.io/json', true);
 	var errMsg = 'There was a problem obtaining your location';
 
 	request.onload = function() {
