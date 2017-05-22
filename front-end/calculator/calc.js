@@ -1,4 +1,4 @@
-//(function(){
+(function(){
 
     /*****************
         Audio
@@ -70,6 +70,8 @@
 
         storedValue: null,      //stored from currentValue when respecting order of operations
         storedOperator: null,
+
+        zeroNegative: false     //keeps track of whether result 0 is negative or not, purely aesthetic
     }
 
     //Dom elements
@@ -193,8 +195,6 @@
                         state.buttonCoords = null;
                     }
                 }
-                //console.log(e.changedTouches[0].pageX);
-                //e.currentTarget.classList.add('focused');
             }
         }
     }
@@ -349,6 +349,16 @@
             state.isNegative = !state.isNegative;
             updateInputValue();
         }
+        else if (state.displayValue === 0){
+            if (state.zeroNegative){
+                updateDisplayValue('0');
+                state.zeroNegative = false;
+            }
+            else{
+                updateDisplayValue('-0');
+                state.zeroNegative = true;
+            }
+        }
         else {
             var val = -state.displayValue;
             inputEvaluated();
@@ -390,6 +400,7 @@
         state.isDecimal = false;
         state.isNegative = false;
         state.newInput = true;
+        state.zeroNegative = false;
         updateInputValue();
         setClear('all');
     }
@@ -544,6 +555,7 @@
             }
             val = addCommas(val.split(''));
         }
+        state.zeroNegative = false;
         updateDisplayValue(val);
     }
 
@@ -646,5 +658,5 @@
     }
 
 
-//})();
+})();
 
