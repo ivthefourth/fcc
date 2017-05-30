@@ -41,7 +41,7 @@
     /*****************
         Data
     ******************/
-    var state = {
+    /*var*/ state = {
 
         //user interface
         isFocused: false,       //True when a button has been clicked/touched and not released 
