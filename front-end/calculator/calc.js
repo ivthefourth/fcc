@@ -274,11 +274,11 @@
         var btnValue = button.dataset.btnValue;
         switch(button.dataset.btnType){
             case 'number':
-                //if(btnValue === undefined) return; //dumb fix for weird bug
+                if(btnValue === undefined) debugger; //return; //dumb fix for weird bug
                 useNumber(btnValue);
                 break;
             case 'operator': 
-                //if(btnValue === undefined) return; //dumb fix for weird bug
+                if(btnValue === undefined) debugger; //return; //dumb fix for weird bug
                 useOperator(btnValue);
                 break;
             case 'decimal':
