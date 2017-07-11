@@ -10,9 +10,6 @@
 - Random Quote Machine
   - [live](https://ivthefourth.github.io/fcc/front-end/quote-machine/)
   - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/quote-machine)
-- Local Weather
-  - [live](http://codepen.io/ivthefourth/pen/rmQRKL)
-  - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/local-weather)
 - Wikipedia Viewer
   - [live](https://ivthefourth.github.io/fcc/front-end/wiki-viewer/)
   - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/wiki-viewer)
