@@ -271,22 +271,17 @@
         Calculator
     ******************/
     function useButton(button){
+        //debugging
+        console.log('obj: ', button);
+        console.log('str: ', JSON.stringify(button, null, 2));
         var btnValue = button.dataset.btnValue;
         switch(button.dataset.btnType){
             case 'number':
-                if(btnValue === undefined) {
-                    //debugging
-                    console.log('obj: ', button);
-                    console.log('str: ' JSON.stringify(button, null, 2));
-                    debugger; //return; //dumb fix for weird bug
+                if(btnValue === undefined) debugger; //return; //dumb fix for weird bug
                 useNumber(btnValue);
                 break;
             case 'operator': 
-                if(btnValue === undefined) {
-                    //debugging
-                    console.log('obj: ', button);
-                    console.log('str: ' JSON.stringify(button, null, 2));
-                    debugger; //return; //dumb fix for weird bug
+                if(btnValue === undefined) debugger; //return; //dumb fix for weird bug
                 useOperator(btnValue);
                 break;
             case 'decimal':
