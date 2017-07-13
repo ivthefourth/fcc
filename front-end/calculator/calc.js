@@ -271,18 +271,14 @@
         Calculator
     ******************/
     function useButton(button){
-        //debugging
-        console.log('obj: ', button);
-        console.log('str: ', JSON.stringify(button, null, 2));
-        var btnValue = button.dataset.btnValue;
         switch(button.dataset.btnType){
             case 'number':
-                if(btnValue === undefined) debugger; //return; //dumb fix for weird bug
-                useNumber(btnValue);
+                if(button.dataset.btnValue === undefined) debugger; //return; //dumb fix for weird bug
+                useNumber(button.dataset.btnValue);
                 break;
             case 'operator': 
-                if(btnValue === undefined) debugger; //return; //dumb fix for weird bug
-                useOperator(btnValue);
+                if(button.dataset.btnValue === undefined) debugger; //return; //dumb fix for weird bug
+                useOperator(button.dataset.btnValue);
                 break;
             case 'decimal':
                 useDecimal();
