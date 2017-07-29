@@ -25,14 +25,14 @@ body{
 	z-index: -1;
 	position: absolute;
 	position: fixed;
-	background: url(bkg-lowq.jpg) no-repeat top center ;
+	background: url(images/bkg-lowq.jpg) no-repeat top center ;
 	background-size: cover;
 }
 
 
 @media all and (min-width: 1280px), all and (min-height: 720px){
 	.background-fix{
-		background-image: url(bkg-1920-1080.jpg);
+		background-image: url(images/bkg-1920-1080.jpg);
 	}
 }
 
@@ -193,7 +193,7 @@ figcaption{
 }
 
 .learn-more{
-	background: url(tumblr_ny4e1h2B9k1s85u2fo1_1280_static.png) no-repeat center center;
+	background: url(images/tumblr_ny4e1h2B9k1s85u2fo1_1280_static.png) no-repeat center center;
 	background-size: cover;
 	border-top: 0.5em solid #e62739;
 	clear: both;
@@ -201,7 +201,7 @@ figcaption{
 
 @media all and (min-device-width: 800px){
 	.learn-more{
-		background-image: url(tumblr_ny4e1h2B9k1s85u2fo1_1280.gif);
+		background-image: url(images/tumblr_ny4e1h2B9k1s85u2fo1_1280.gif);
 	}
 }
 
