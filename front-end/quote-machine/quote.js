@@ -65,7 +65,6 @@ var newQuoteBtn = document.getElementById('new-quote');
 var loadIcon = document.getElementById('load-icon');
 var commentP = document.getElementById('quote');
 
-//add event listener to the "New" button
 newQuoteBtn.onclick =  function newQuote(e){
    e.preventDefault();
    //if we aren't waiting for an api request, display a new
@@ -121,8 +120,9 @@ function noConnectionError(canTryAgain){
    setTweet(cheeky);
 
    //sending false to this function means we don't want the user to be able to 
-   //load a new comment, so we keep collected.Data.currentlyLoading as true, 
-   //preventing them from invoking the getQuote function in the click callback
+   //load a new comment, so we set collected.Data.currentlyLoading as its opposite, 
+   //sending false prevents them from invoking the getQuote function in the click callback
+   //sending true allows the getQuote function to run in the click callback
    collectedData.currentlyLoading = !canTryAgain;
 }
 
@@ -161,11 +161,12 @@ function doneLoading(status){
 //collectedData.categories[categoryID]
 //
 //It can also be used to remove an entire category from collectedData.categories
+//
+//see "example snapshot of data structure for collectedData.categories:" above 
 function removeIndex(destination, index){
    var arr = destination.list.splice(index, 1);
    delete destination[arr[0].id];
 }
-
 
 
 
@@ -188,7 +189,6 @@ function onYouTubeApiLoad() {
    //if url has a querystring with comment id parameter...
    var cid = location.search.match(/cid=[^&]+/);
    if( cid ){
-
       //load the comment for given id
       getCommentFromSearch(cid[0].slice(4));
       //and load available video categories from YouTube api, but don't
@@ -220,14 +220,16 @@ function getCommentFromSearch(cid){
       //otherwise, continue
       else{
          var text;
+         //if the request returned with a valid comment
          if( response.items.length > 0){
-            text = response.items[0].snippet.topLevelComment.snippet.textDisplay;
+            //store the video id for that comment
             collectedData.currentVideo = response.items[0].snippet.videoId;
-         }
 
-         if (text){
+            //get the text from that comment and display it to user
+            text = response.items[0].snippet.topLevelComment.snippet.textDisplay;
             displayComment(text);
          }
+         //otherwise display that there was an error getting the comment 
          else{
             commentError();
          }
@@ -235,6 +237,7 @@ function getCommentFromSearch(cid){
    });
 }
 
+//gets valid video categories from YouTube
 function getCategories(setText){
    var request = gapi.client.youtube.videoCategories.list({
       part: 'snippet',
@@ -246,20 +249,32 @@ function getCategories(setText){
       if( response.code == -1 ){
          noConnectionError(false);
       }
+      //otherwise, continue
       else{
+         //if setText argument is true, then display the default text to the user
+         //once the categories are loaded 
          if( setText ){
             commentP.textContent = 'Read random comments from YouTube. Click the "New" button to get started!';
             commentP.classList.remove('loading');
             loadIcon.classList.remove('animate-loader');
             collectedData.currentlyLoading = false;
          }
-         collectedData.categories.loaded = true;
+
+         //loop through the returned categories 
          for (var i=0; i<response.items.length ; i++){
+            //categories without assignable as true, won't have any videos,
+            //so for categories that are 'assignable'
             if (response.items[i].snippet.assignable === true){
+               //store category id in 'list' array
                collectedData.categories.list.push(response.items[i]);
+               //create object property for category id, and populate it with
+               //default 'unloaded' object
+               //this will hold videos for this category in future
                collectedData.categories[response.items[i].id] = {list: [], loaded: false};
             }
          }
+         //store the fact that the categories have been loaded
+         collectedData.categories.loaded = true;
       }
    });
 }
@@ -267,20 +282,31 @@ function getCategories(setText){
 //
 //From User Input
 //
+
+//start the process of getting a new youtube comment 
 function getQuote(){
+   //set state to loading and update display 
    collectedData.currentlyLoading = true;
    loadIcon.classList.add('animate-loader');
    commentP.classList.add('loading')
    commentP.classList.remove('error');
+   //get list of videos for random category 
    getVideosByPopular();
-   
 }
+
+//get list of videos for a random category
+//(either from youtube or from stored data)
 function getVideosByPopular(){
+   //pick a random category ID, from the list of IDs
    var index = randInt(collectedData.categories.list.length);
    var categoryId = collectedData.currentCategory = collectedData.categories.list[index].id;
+
+   //if we've already loaded videos for that category, no need for api call
    if( collectedData.categories[categoryId].loaded ){
+      //get list of comments for random video in given category
       getCommentThread();
    }
+   //otherwise we need to get the videos for this category from YouTube api 
    else{
       var request = gapi.client.youtube.videos.list({
           part: 'id',
@@ -290,20 +316,35 @@ function getVideosByPopular(){
 
       });
       request.execute( function(response){
+         //if network error, let user know with the option to try loading new comments
          if( response.code == -1 ){
             noConnectionError(true);
          }
+         //otherwise, continue
          else{
+            //if the response returns with videos for given category...
             if (response.items && response.items.length >= 1){
+               //loop through the returned videos
                for (var i = 0; i < response.items.length; i++){
+                  //push object containing video id into given category's list array
                   collectedData.categories[categoryId].list.push(response.items[i]);
+                  //create object property for category id, and populate it with
+                  //default 'unloaded' object
+                  //this will hold comments for this video in future
                   collectedData.categories[categoryId][response.items[i].id] = {list: [], loaded: false};
                }
+               //store the fact that the videos have been loaded for given category
                collectedData.categories[categoryId].loaded = true;
+               //get list of comments for random video from this response 
                getCommentThread();
             }
+            //otherwise
             else{
+               //, remove this category from our category list, since there are no videos 
+               //(or none left) and... 
                removeIndex(collectedData.categories, index);
+               //invoke this function again. should not recursively loop forever, since we remove
+               //any categories that do not have videos 
                getVideosByPopular();
             }
          }
@@ -311,25 +352,41 @@ function getVideosByPopular(){
    }
 }
 
+//get list of comments for a random video from video list
+//(either from youtube or from stored data)
 function getCommentThread(next){
+   //the next parameter indicates that we have gone through all the comments
+   //we've loaded for the current video. This means we want to load more results
+   //for the comments of a certain video, if there are any. 
+
+   //if next argument is not provided, select a random video for the current video category
    if( next === undefined){
       var categoryId = collectedData.currentCategory;
       var index = randInt(collectedData.categories[categoryId].list.length);
       var vidId = collectedData.currentVideo = collectedData.categories[categoryId].list[index].id;
    }
+   //otherwise we want to use the current video in our request
    else{
       var vidId = collectedData.currentVideo;
       var categoryId = collectedData.currentCategory;
    }
 
+   //if we've already loaded comments for this video and don't need to load more,
+   //select a random comment
    if( collectedData.categories[categoryId][vidId].loaded && next === undefined){
       getComment();
    }
+   //otherwise, if we wanted to load more comments for a certain video but there are none,
+   //reset the object for that video in our data. This allows us to load comments for
+   //this video again, since there may be new ones by now
    else if( next === 'none'){
       collectedData.categories[categoryId][vidId].loaded = false;
       collectedData.categories[categoryId][vidId].next = undefined;
+      //we still want to display a comment, so go get a random video again
       getVideosByPopular();
    }
+   //if we haven't loaded comments for this video or we have, but we want to load more
+   //(and there are more), we need to do an API request 
    else{
       var reqObj = {
          part: 'snippet',
@@ -338,28 +395,46 @@ function getCommentThread(next){
          textFormat: 'plaintext',
       };
 
+      //if we are loading more comments, add the give next parameter to our request
       if( next !== undefined ){
          reqObj.pageToken = next;   
       }
+
       var request = gapi.client.youtube.commentThreads.list(reqObj);
       request.execute( function(response){
+         //if network error, let user know with the option to try loading new comments
          if( response.code == -1 ){
             noConnectionError(true);
          }
+         //otherwise, continue
          else{
+            //if response returns comments for current video, 
             if (response.items && response.items.length >= 1){
+               //store data for comments and indicate that they have been loaded
                for (var i = 0; i < response.items.length; i++){
                   collectedData.categories[categoryId][vidId].list.push(response.items[i]);
                }
                collectedData.categories[categoryId][vidId].loaded = true;
+
+               //if the repsonse suggests there are more comments to load, store the 'next'
+               //value for future requests, otherwise there are no more to load, so store 'none'
                collectedData.categories[categoryId][vidId].next = response.nextPageToken || 'none';
+               //select random comment from returned comments
                getComment();
             }
+            //otherwise, if we had previously loaded comments for this video,
+            //reset its data object so we can load fresh comments in the future
+            //(there might be new ones)
+            //alternative option to consider would be to remove this video from our data
+            //in the same way as we do for a video with no comments
             else if ( collectedData.categories[categoryId][vidId].loaded ){
                collectedData.categories[categoryId][vidId].loaded = false;
                collectedData.categories[categoryId][vidId].next = undefined;
                commentError();
             }
+            //otherwise the video has no comments at all
+            //thus it's probably not very popular and won't get many/any new comments
+            //so remove it from our data and try getting a comment from a different video
             else{
                removeIndex(collectedData.categories[categoryId], index);
                getVideosByPopular();
@@ -369,23 +444,30 @@ function getCommentThread(next){
    }
 }
 
+//get random comment from current video data
 function getComment(){
    var categoryId = collectedData.currentCategory;
    var vidId = collectedData.currentVideo;
    var commentArr = collectedData.categories[categoryId][vidId].list;
+   //if there are no comments left for current video, send an api request to get more comments
    if (commentArr.length < 1){
       getCommentThread(collectedData.categories[categoryId][vidId].next);
    }
+   //otherwise, get a random comment 
    else{
       var index = randInt(commentArr.length);
       var text = commentArr[index].snippet.topLevelComment.snippet.textDisplay;
       collectedData.currentComment = commentArr[index].id;
+
+      //display comment as long as it has a snippet
+      //if there's no snippet, show a comment error.
       if (text){
          displayComment(text);
       }
       else{
          commentError();
       }
+      //remove comment from stored data 
       commentArr.splice(index, 1);
    }
 }
