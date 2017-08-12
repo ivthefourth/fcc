@@ -32,7 +32,7 @@ example snapshot of data structure for collectedData.categories:
 
 {
    loaded: true,                    
-   list: [categoryID1, categoryID2,...],
+   list: [categoryID1, categoryID2],
    categoryID1: {
       loaded: false,
       list: []
@@ -89,8 +89,7 @@ var errorIcon = '<i class="fa fa-exclamation-triangle"></i> ';
 //displaying the currently displayed comment 
 function makeUrl(){
    var url = location.origin + location.pathname +
-           '?cid=' + collectedData.currentComment +
-           '&vid=' + collectedData.currentVideo;
+           '?cid=' + collectedData.currentComment;
    return url;
 }
 
@@ -176,38 +175,52 @@ function removeIndex(destination, index){
 //
 //At Page Load
 //
+//when the page is loaded, get the youtube client api
 function onClientLoad() {
    collectedData.clientLoaded = true;
    gapi.client.load('youtube', 'v3', onYouTubeApiLoad);
 }
+//callback for when the youtube api is loaded
 function onYouTubeApiLoad() {
    collectedData.youtubeApiLoaded = true;
    gapi.client.setApiKey('AIzaSyA6S05idU4SdBSFc3F3lWfkwsGX7kfSa0c');
-   if(location.search){
-      getCommentFromSearch();
+
+   //if url has a querystring with comment id parameter...
+   var cid = location.search.match(/cid=[^&]+/);
+   if( cid ){
+
+      //load the comment for given id
+      getCommentFromSearch(cid[0].slice(4));
+      //and load available video categories from YouTube api, but don't
+      //update text when they are loaded (keep the comment there)
       getCategories(false);
    }
+   //otherwise, just load video cateogires and do update text when loaded
    else{
       getCategories(true);
    }
 }
 
-function getCommentFromSearch(){
-   var arr = location.search.slice(5).split('&vid=');
-   var commentId = collectedData.currentComment = arr[0];
+//gets a comment for the video and comment ids provided in url querystring 
+function getCommentFromSearch(cid){
+   //store comment id
+   collectedData.currentComment = cid;
+
+   //create and send api request for this comment
    var request = gapi.client.youtube.commentThreads.list({
       part: 'snippet',
-      id: commentId,
+      id: cid,
       textFormat: 'plaintext',
    });
    request.execute( function(response){
+      //if network error, let user know with the option to try loading new comments
       if( response.code == -1 ){
          noConnectionError(true);
       }
+      //otherwise, continue
       else{
          var text;
          if( response.items.length > 0){
-            console.log(response);
             text = response.items[0].snippet.topLevelComment.snippet.textDisplay;
             collectedData.currentVideo = response.items[0].snippet.videoId;
          }
@@ -228,6 +241,8 @@ function getCategories(setText){
       regionCode: 'US',
    });
    request.execute( function(response){
+      //if network error, let user know without the option to try loading 
+      //new comments, because we have no categories to choose from 
       if( response.code == -1 ){
          noConnectionError(false);
       }
@@ -236,8 +251,8 @@ function getCategories(setText){
             commentP.textContent = 'Read random comments from YouTube. Click the "New" button to get started!';
             commentP.classList.remove('loading');
             loadIcon.classList.remove('animate-loader');
+            collectedData.currentlyLoading = false;
          }
-         collectedData.currentlyLoading = false;
          collectedData.categories.loaded = true;
          for (var i=0; i<response.items.length ; i++){
             if (response.items[i].snippet.assignable === true){
@@ -252,9 +267,6 @@ function getCategories(setText){
 //
 //From User Input
 //
-
-
-
 function getQuote(){
    collectedData.currentlyLoading = true;
    loadIcon.classList.add('animate-loader');
