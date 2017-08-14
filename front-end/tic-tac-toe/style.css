@@ -222,6 +222,17 @@ h2{
 	background-color: hsla(303, 62%, 35%, 1);
 }
 
+#difficulty{
+	text-align: center;
+	color: hsla(303, 62%, 96%, 1);
+	padding: 3em 0;
+}
+
+#hard-mode{
+	margin: 0 0 0 1em;
+	vertical-align: middle;
+}
+
 @media all and (max-height: 700px) and (orientation: landscape){
 	#wrapper{
 		padding: 1.5rem;
@@ -230,9 +241,16 @@ h2{
 		width: 40%;
 		float: left;
 		text-align: left;
+		margin-bottom: 0;
 	}
 	#board{
 		width: 60%;
 		float: right;
+	}
+	#difficulty{
+		width: 40%;
+		float: left;
+		text-align: left;
+		padding: 1.5em 0;
 	}
 }
