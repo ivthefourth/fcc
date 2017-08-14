@@ -4,12 +4,20 @@
         Audio
     ******************/
     var webAudio = window.AudioContext || window.webkitAudioContext;
-    var playTap;
+    var audioCtx;
+
+    //holds audio array buffer for button tap sound 
+    var buffer = null;
+
+    //if browser supports web audio, create a new audio context
+    //and load the button tap sound 
     if (webAudio){
-        var audioCtx = new webAudio();
-        var buffer = null;
+        audioCtx = new webAudio();
         var request = new XMLHttpRequest();
         request.open('GET', 'keytap.wav', true);
+
+        //when request returns successfully, store audio file 
+        //as an array buffer 
         request.responseType = 'arraybuffer';
         request.onload = function(){
             var audioData = request.response;
@@ -18,21 +26,15 @@
             });
         }
         request.send();
-    
-        playTap = function(){
-            if (buffer === null){
-                return;
-            }
+    }
+
+    //play tap sound if web audio exists and sound was loaded correctly
+    function playTap(){
+        if (buffer !== null){
             var source = audioCtx.createBufferSource();
             source.buffer = buffer;
             source.connect(audioCtx.destination);
             source.start(audioCtx.currentTime + 0.01);
-        }
-    }
-    else{
-        //do nothing
-        playTap = function(){
-            ;
         }
     }
 
