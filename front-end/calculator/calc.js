@@ -41,7 +41,7 @@
     /*****************
         Data
     ******************/
-    /*var*/ state = {
+    var state = {
 
         //user interface
         isFocused: false,       //True when a button has been clicked/touched and not released 
@@ -61,7 +61,7 @@
         newInput: true,         //pushing number button starts new input 
         clearType: 'all',       //Clear display or everything?
         chainEquals: false,     //set true after pressing equals, 
-                                            //allows repeat operations by pressing equals again
+                                //allows repeat operations by pressing equals again
 
         operatorActive: false,  //When an operator is selected (using negative will put 0 as input)
 
@@ -273,11 +273,9 @@
     function useButton(button){
         switch(button.dataset.btnType){
             case 'number':
-                if(button.dataset.btnValue === undefined) debugger; //return; //dumb fix for weird bug
                 useNumber(button.dataset.btnValue);
                 break;
             case 'operator': 
-                if(button.dataset.btnValue === undefined) debugger; //return; //dumb fix for weird bug
                 useOperator(button.dataset.btnValue);
                 break;
             case 'decimal':
