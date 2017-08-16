@@ -73,7 +73,11 @@
         storedValue: null,      //stored from currentValue when respecting order of operations
         storedOperator: null,
 
-        zeroNegative: false     //keeps track of whether result 0 is negative or not, purely aesthetic
+        zeroNegative: false,    //keeps track of whether result 0 is negative or not, purely aesthetic
+                                //different from isNegative because isNegative is for user input only
+
+        zeroShouldUpdateClear: false //tracks whether pressing 0 should update clear type when
+                                     //an operator is active
     }
 
     //Dom elements
@@ -347,8 +351,12 @@
             //examples: press +/- then 0;
             // 3 + = C = 0;
             // ÷ = 0
-            else if(state.isNegative || num !== state.displayValue.toString()){
+            // +/- = 0
+            //NOTWORKING: +/- <any operator> 0
+            else if(state.isNegative || state.zeroNegative ||
+            num !== state.displayValue.toString() || state.zeroShouldUpdateClear){
                 setClear('display');
+                state.zeroShouldUpdateClear = false;
             }
 
             //reset the input array and length to contain only the given digit
@@ -460,6 +468,9 @@
     }
 
     function useOperator(type){
+        if(state.clearType === 'all' && state.displayValue === 0 && state.isNegative){
+            state.zeroShouldUpdateClear = true;
+        }
         if (state.currentOperator === null || state.chainEquals){
             state.currentOperator = type;
             state.currentValue = state.displayValue;
@@ -559,6 +570,9 @@
             updateResultValue(result);
             deactivateOperator();
             state.chainEquals = true;
+        }
+        else if(state.isNegative && state.displayValue === 0){
+            state.zeroNegative = true;
         }
         inputEvaluated();
     }
