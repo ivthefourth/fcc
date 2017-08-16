@@ -334,8 +334,7 @@
     }
 
     function useNumber(num){
-        //if the calculator is expecting a new number
-        //e.g. after clearing or clicking an operator button
+        //if inputting a new number, e.g. after clearing or clicking an operator button
         if (state.newInput){
             state.displayType = 'input';
 
@@ -344,10 +343,10 @@
                 state.newInput = false;
                 setClear('display');
             }
+            //unless the current display value is not 0 or is negative 0
             //examples: press +/- then 0;
             // 3 + = C = 0;
             // ÷ = 0
-            //unless the current display value is not 0 or is negative 0
             else if(state.isNegative || num !== state.displayValue.toString()){
                 setClear('display');
             }
@@ -355,6 +354,7 @@
             //reset the input array and length to contain only the given digit
             state.input = [num];
             state.inputLength = 1;
+
             if (state.currentOperator !== null){
                 deactivateOperator();
             }
@@ -370,6 +370,7 @@
     }
 
     function useDecimal(){
+        //if inputting a new number
         if (state.newInput){
             state.input = ['0', '.'];
             state.inputLength = 1;
@@ -381,6 +382,8 @@
             }
             updateInputValue();
         }
+        //otherwise if the max number if digits hasn't been reached
+        //and there isn't already a decimal in the input number 
         else if (state.inputLength < 9 && !state.isDecimal){
             state.input.push('.');
             state.isDecimal = true;
@@ -388,6 +391,8 @@
         }
     }
 
+    //note: negative with error works weird on phone 
+    //note: on phone, pressing = +/- 3 doesn't keep negative sign
     function useNegative(){
         if (state.displayType === 'input'){
             state.isNegative = !state.isNegative;
@@ -538,7 +543,6 @@
 
             //function this VV
             updateResultValue(result);
-            inputEvaluated();
             deactivateOperator();
             state.chainEquals = true;
         }
@@ -553,10 +557,10 @@
 
             //function this VV
             updateResultValue(result);
-            inputEvaluated();
             deactivateOperator();
             state.chainEquals = true;
         }
+        inputEvaluated();
     }
 
     //sets display value to given value
