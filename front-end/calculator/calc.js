@@ -43,7 +43,7 @@
     /*****************
         Data
     ******************/
-    /*var*/ state = {
+    var state = {
 
         //user interface
         isFocused: false,       //True when a button has been clicked/touched and not released 
@@ -352,7 +352,7 @@
             // 3 + = C = 0;
             // ÷ = 0
             // +/- = 0
-            //NOTWORKING: +/- <any operator> 0
+            // +/- <any operator> 0
             else if(state.isNegative || state.zeroNegative ||
             num !== state.displayValue.toString() || state.zeroShouldUpdateClear){
                 setClear('display');
@@ -378,7 +378,7 @@
     }
 
     function useDecimal(){
-        //if inputting a new number
+        //if inputting a new number, have leading 0 
         if (state.newInput){
             state.input = ['0', '.'];
             state.inputLength = 1;
@@ -400,17 +400,21 @@
     }
 
     //note: negative with error works weird on phone 
-    //note: on phone, pressing = +/- 3 doesn't keep negative sign
+    //note: pressing = +/- 3 doesn't keep negative sign
     function useNegative(){
+        //if user is inputing a number, toggle whether that number is negative
         if (state.displayType === 'input'){
             state.isNegative = !state.isNegative;
             updateInputValue();
         }
+        //otherwise, if the display shows "Error" or an operator button has just 
+        //been pressed, start new input number as -0
         else if (state.operatorActive || state.displayValue === 'Error'){
             state.displayType = 'input';
             state.isNegative = !state.isNegative;
             updateInputValue();
         }
+        //otherwise, if the display shows 0 or -0, toggle the negative sign
         else if (state.displayValue === 0){
             if (state.zeroNegative){
                 updateDisplayValue('0');
@@ -421,6 +425,7 @@
                 state.zeroNegative = true;
             }
         }
+        //otherwise, multiply the displayed value by -1 and update 
         else {
             var val = -state.displayValue;
             inputEvaluated();
@@ -429,11 +434,17 @@
     }
 
     function usePercent(){
+        //if the user is adding or subtracting a percentage,
+        //make the result be that percentage of the number they are 
+        //adding/subtracting to
+        //e.g. 50 + 4 % = results in 52; 9 + % = results in 9.81
         if ((state.displayType === 'input' || state.operatorActive) && (
             state.currentOperator === 'add' || state.currentOperator === 'subtract')
             ){
             var val = state.displayValue * state.currentValue / 100;
         }
+        //otherwise just divide the currently displayed value by 100,
+        //turning it into a percent
         else{ 
             val = state.displayValue / 100;
         }
@@ -442,6 +453,7 @@
     }
 
     function useClear(){
+        //if clear all (AC)
         if (state.clearType === 'all'){ 
             if (state.currentOperator !== null){
                 deactivateOperator();
@@ -452,9 +464,12 @@
             state.storedOperator= null;
             state.chainEquals = false;
         }
+        //if clear display only (C)
         else if (state.currentOperator !== null && state.chainEquals === false){
             activateOperator();
         }
+
+        //for both AC and C
         state.input = [0];
         state.inputLength = 1;
         state.displayValue = 0;
@@ -468,17 +483,35 @@
     }
 
     function useOperator(type){
+
+        //This handles the specific case when the calculator clear is set to
+        //all (AC) and the user makes a displayed 0 negative then uses an
+        //operator button.
+        //the displayed zero should be treated as non negative (pressing
+        //the +/- button one time will make (keep) it negative), but when 0 
+        //button is pressed, the clear state should update to display (C)
+        //there's surely a better way to handle this, but this works and was
+        //least invasive 
         if(state.clearType === 'all' && state.displayValue === 0 && state.isNegative){
             state.zeroShouldUpdateClear = true;
         }
+
+        //if working with fresh input (e.g. after all clear) 
+        //or the equals button has just been pressed
+        //then we don't have to worry about evaluating chained operations 
         if (state.currentOperator === null || state.chainEquals){
             state.currentOperator = type;
             state.currentValue = state.displayValue;
             inputEvaluated();
             activateOperator();
         }
+        //otherwise, if changing the active operator
+        //i.e. pressing multiple operator buttons consecutively
         else if (state.operatorActive){
-            //if changing from multiply to add with a stored value
+            //if changing from multiply/divide to add/subtract with a stored 
+            //value, evaluate the stored operation right away 
+            //e.g. 9 + 9 x 9 x displayes 81 and stores the first nine and addition
+            //operator, now pressing + or - adds 9 to 81 and displays 90 
             if (state.storedValue !== null && (type === 'add' || type === 'subtract')){
                 var result = operate(state.storedValue, state.storedOperator, state.currentValue);
                 state.storedValue = null;
@@ -493,15 +526,19 @@
             activateOperator();
             
         }
+        //otherwise there may be chained operations (3 + 4 * 4 =)
         else{
             if (type === 'add' || type === 'subtract'){
+                //if there's a stored value, perform the current operation
+                //then perform the stored operation using that result, and activate
+                //the selected operator
                 if (state.storedValue !== null){
                     var result = operate(state.currentValue, state.currentOperator, state.displayValue);
                     result = operate(state.storedValue, state.storedOperator, result);
                     state.storedValue = null;
                     state.storedOperator = null;
 
-                    //function this VV
+                    //function this? VV
                     updateResultValue(result);
                     state.currentOperator = type;
                     state.currentValue = result;
@@ -509,10 +546,12 @@
                     activateOperator();
 
                 }
+                //otherwise, just perform the current operation  and activate
+                //selected operator 
                 else{
                     var result = operate(state.currentValue, state.currentOperator, state.displayValue);
 
-                    //function this VV
+                    //function this? VV
                     updateResultValue(result);
                     state.currentOperator = type;
                     state.currentValue = result;
@@ -520,7 +559,11 @@
                     activateOperator();
                 }
             }
-            else{
+            //if multiply or divide
+            else{ 
+                //follow order of operations, if user is multiplying a number
+                //they were adding to, store that number and the addition operation
+                //then continue with the multiplication on the new number
                 if (state.currentOperator === 'add' || state.currentOperator === 'subtract'){
                     state.storedValue = state.currentValue;
                     state.storedOperator = state.currentOperator;
@@ -529,10 +572,13 @@
                     inputEvaluated();
                     activateOperator();
                 }
+                //otherwise, the recent operation was multiply or divide
+                //and this operation is multiply or divide, so order doesn't matter
+                //just evaluate
                 else{
                     var result = operate(state.currentValue, state.currentOperator, state.displayValue);
 
-                    //function this VV
+                    //function this? VV
                     updateResultValue(result);
                     state.currentOperator = type;
                     state.currentValue = result;
@@ -545,6 +591,8 @@
     }
 
     function useEquals(){
+        //if there is a stored value, perform the current operation,
+        //then perform the stored operation using that result
         if (state.storedValue !== null){
             var result = operate(state.currentValue, state.currentOperator, state.displayValue);
             result = operate(state.storedValue, state.storedOperator, result);
@@ -557,11 +605,18 @@
             deactivateOperator();
             state.chainEquals = true;
         }
+        //otherwise, if there is just a current value
         else if (state.currentValue !== null) {
+            //if we have selected an operator since last pressing equals
             if (!state.chainEquals){
                 var result = operate(state.currentValue, state.currentOperator, state.displayValue);
                 state.currentValue = state.displayValue;
             }
+            //if we have not selected an operator since last pressing equals
+            //or have cleared the selected operator, perform the previous operation
+            //with the previous value on the current value
+            //e.g. 3 + 3 = = = should display 12 
+            // 9 + 5 = C = should display 5
             else{
                 var result = operate(state.displayValue, state.currentOperator, state.currentValue);
             }
@@ -571,6 +626,11 @@
             deactivateOperator();
             state.chainEquals = true;
         }
+        //if we are pressing equals without any active or stored operation
+        //and the provided value is -0, track that the displayed result is -0
+        //this is done so that pressing +/- again will make the 0 nonnegative
+        //and so that pressing 0 when the clear state is all (AC) will change
+        //the clear state to display (C)
         else if(state.isNegative && state.displayValue === 0){
             state.zeroNegative = true;
         }
@@ -590,33 +650,63 @@
             val = 'Error';
             state.displayValue = val;
         }
-        //use scientific notation with large (10^[>9]) and small (10^[<-8]) values
-        else if (
-                  val >= 1e9 || val <= -1e9 ||
-                    val < 9.99999999e-9 && val > 0 || val > -9.99999999e-9 && val < 0
-                  ){
+        //use scientific notation with large (>= 10^9) and small (< 10^(-8)) values
+        else if ( val >= 1e9 || val <= -1e9 || val < 9.99999999e-9 && val > 0 
+        || val > -9.99999999e-9 && val < 0
+        ){
             val = val.toExponential().split('');
+            //digit is the numeric part of the exponential notation 
+            //(before the e)
             var digit = val.splice(0, val.indexOf('e') );
+            //exponent is the exponent
             var exponent = val.splice(1);
+            //temporarly convert the numeric part to a number, rounded to
+            //meet the required number of digits. The required number of digits
+            //after the exponent is 7 minus the number of digits in the exponent
+            //we use 8 for our calculation because the exponent array 
+            //contains the sign (+ or -) and the sign is not counted as a digit
+            //Then make sure that number is less than 10
             var tempDigit = Number(digit.join('')).toFixed(8 - exponent.length);
-            if( Number(tempDigit) >= 10 ){
-                digit = (Number(digit.join(''))/10).toFixed(8 - exponent.length);
+            //if it is,
+            if( Number(tempDigit) < 10 ){
+                //we can use tempDigit for our rounded numeric part for output
+                digit = tempDigit;
+                //remove trailing zeros in numeric part, if this leaves
+                //no zeros after the decimal, remove the decimal too
                 digit = digit.replace(/\.?0+$/,"");
-                exponent = (parseInt(exponent.join('')) + 1).toString();
+                //parse int to get rid of + sign but keep - sign 
+                exponent = parseInt(exponent.join('')).toString();
+                //bring it all together
                 val = digit + 'e' + exponent;
             }
+            //if it's not less than 10, 
             else{
-                digit = Number(digit.join('')).toFixed(8 - exponent.length);
+                //we have to first divide our numeric part by 10 and then round it
+                //to the appropriate number of digits
+                digit = (Number(digit.join(''))/10).toFixed(8 - exponent.length);
+
                 digit = digit.replace(/\.?0+$/,"");
-                exponent = parseInt(exponent.join('')).toString();
+
+                //increase the value of the exponent by one because we had to
+                //divide the numeric part by 10 
+                exponent = (parseInt(exponent.join('')) + 1).toString();
+
                 val = digit + 'e' + exponent;
             }
         }
+        //for all other values
         else{
+            //decimal variable contains how many digits the number has
+            //before the decimal
             var decimal = val.toFixed(11).split('').indexOf('.');
+            //if there are more than 8 digits before the decimal
+            //round to a a whole number
             if (decimal > 8){ 
                 val = val.toFixed(0);
             }
+            //otherwise, round the number such that
+            //it will have a total of 9 digits
+            //and remove trailing zeros after decimal 
             else{
                 val = val.toFixed(9 - decimal).replace(/\.?0+$/,"");
             }
@@ -629,7 +719,8 @@
     //sets display value on state and processes value to display on screen
     //i.e. adds commas where necessary 
     function updateInputValue(){
-        var val = state.input.slice(0); //clone input
+        var val = state.input.slice(0);
+        //if input number is negative, provide minus sign
         if (state.isNegative){
             val.unshift('-');
         }
@@ -664,6 +755,7 @@
 
     }
 
+    //performs given mathematical operation
     function operate(a, operator, b){
         if (a === 'Error' || b === 'Error'){
             return 'Error';
@@ -703,6 +795,7 @@
     }
 
     //set state and update UI when changing between clear display/all
+    //state
     function setClear(type){
         if (type !== 'display' && type !== 'all'){
             throw new Error('Invalid value for clear: ' + type);
@@ -712,6 +805,7 @@
             updateClearButton(type);
         }
     }
+    //ui
     function updateClearButton(type){
         if (type === 'all'){
             clear.innerText = 'AC';
