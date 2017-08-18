@@ -6,8 +6,8 @@
   - [live](https://ivthefourth.github.io/fcc/front-end/tribute-page/)
   - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/tribute-page)
 - Portfolio
-  - [live](https://ivthefourth.github.io/portfolio/)
-  - [code](https://github.com/ivthefourth/portfolio)
+  - [live](https://ivthefourth.github.io/)
+  - [code](https://github.com/ivthefourth/ivthefourth.github.io)
 - Random Quote Machine
   - [live](https://ivthefourth.github.io/fcc/front-end/quote-machine/)
   - [code](https://github.com/ivthefourth/fcc/tree/master/front-end/quote-machine)
