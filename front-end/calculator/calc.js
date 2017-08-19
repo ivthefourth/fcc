@@ -699,6 +699,11 @@
             //decimal variable contains how many digits the number has
             //before the decimal
             var decimal = val.toFixed(11).split('').indexOf('.');
+            //if value is negative, then we are over counting the number
+            //of digits by one since the minus sign is not a digit
+            if (val < 0){
+                decimal -= 1;
+            }            
             //if there are more than 8 digits before the decimal
             //round to a a whole number
             if (decimal > 8){ 
